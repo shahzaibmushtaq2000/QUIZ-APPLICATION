@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.8.2/firebase.js"></script>
+
+
+<link rel="stylesheet" href="./style.css">
+
+    <title>Home</title>
+</head>
+<body>
+        <ul id="ul1">
+                <li><a class="active" href="#home">Home</a></li>
+                <!-- <li><a href="#news">News</a></li> -->
+                <!-- <li><a href="#contact">Contact</a></li> -->
+                <li style="float:right"><a href="#about" onclick="logOut()">LogOut</a></li>
+              </ul>
+              <hr>
+<!-- <ul>
+    <li><p><a href="http://">css</a></p></li>
+    <li><p><a href="http://">javascript</a></p></li>
+    
+</ul> -->
+<div id="main">
+    <h2>add categories</h2>
+<input type="text" name="cate" id="cate" placeholder="enter the category">
+<button onclick="addCate()" class="btn btn-warning">add</button><br><hr>
+<h4>categories:</h4>
+</div>
+<div id="showCate"></div>
+    <h2>add question in the following category</h2>
+    <input type="text" name="" id="enterCate" placeholder="in which category"><br>
+    <input type="text" name="" id="q" placeholder="question"><br>
+    <input type="text" name="" id="a" placeholder="option1"><br>
+    <input type="text" name="" id="b" placeholder="option2"><br>
+    <input type="text" name="" id="c" placeholder="option3"><br>
+    <button onclick="saveQuestion()" class="btn btn-danger">save</button>
+    <hr>
+    <h2>show question of</h2>
+    <input type="text" name="" id="quesOf" placeholder="enter required category">
+<button onclick="renderQuestion()" class="btn btn-primary">showQues</button>
+    <div>
+        <p id="ques"></p>
+        <div id="radio">
+        <input type="radio" name="option" id="btn0">a <span id="choice0"></span>
+        <input type="radio" name="option" id="btn1">b  <span id="choice1"></span>
+        <input type="radio" name="option" id="btn2">c  <span id="choice2"></span>
+    </div>
+        <button onclick="nextQuestion()" class="btn btn-warning">next</button>
+        <button onclick="reset()" class="btn btn-primary">reset</button>
+        <button class="btn btn-danger">delete</button>
+
+
+                      <!-- firebase -->
+        <script src="https://www.gstatic.com/firebasejs/5.5.8/firebase.js"></script>
+        <!-- sweet alert -->
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script src="./app.js"></script>
+
+
+
+    
+    <script>
+var div0 = document.getElementById("main");//jis main jaeyga
+
+function addCate(){
+    var cate = document.getElementById("cate").value;
+    var textnode = document.createTextNode(cate);
+    var para = document.createElement("p");
+    var txt2 = document.createTextNode(cate);
+    para.appendChild(txt2);
+    div0.appendChild(para)
+    alert(cate);
+    firebase.database().ref(cate).push('');
+var showcate = document.getElementById("showCate");
+    
+}
+
+var questions = [];
+var len=[];
+var count=0;
+// getdata()
+function getdata() {
+    var quesOf = document.getElementById('quesOf').value;
+
+    if(quesOf == ""){
+        alert("first enter category" );
+    }
+    else{
+    // var uid = firebase.auth().currentUser.uid;
+    firebase.database().ref('/').child(quesOf).on('child_added', (data) => {
+        console.log(data.val())
+        questions.push(data.val())
+        len=questions.length;
+            var q = document.getElementById('ques');
+    var opt1 = document.getElementById('choice0');
+    var opt2 = document.getElementById('choice1');
+    var opt3 = document.getElementById('choice2');
+    // alert(questions[count].question);
+    q.innerHTML = questions[count].question
+    opt1.innerHTML = questions[count].option1
+    opt2.innerHTML = questions[count].option2
+    opt3.innerHTML = questions[count].option3
+
+    })
+
+}
+}
+function saveQuestion(){
+    var enterCate = document.getElementById("enterCate").value;
+
+    var question = document.getElementById("q");
+    var option1 = document.getElementById("a");
+    var option2 = document.getElementById("b");
+    var option3 = document.getElementById("c");
+    // var key = firebase.database().ref('/').child(enterCate).push().key;
+    let questionDetail = {
+        question: question.value,
+        option1: option1.value,
+        option2: option2.value,
+        option3: option3.value,
+        // key: key
+    }
+    console.log(questionDetail)
+    firebase.database().ref('/').child(enterCate).push(questionDetail);
+
+}
+function renderQuestion() {
+    getdata();
+
+    // var q = document.getElementById('ques');
+    // var opt1 = document.getElementById('choice0');
+    // var opt2 = document.getElementById('choice1');
+    // var opt3 = document.getElementById('choice2');
+    // alert(questions[count].question);
+    // q.innerHTML = questions[count].question
+    // opt1.innerHTML = questions[count].option1
+    // opt2.innerHTML = questions[count].option2
+    // opt3.innerHTML = questions[count].option3
+
+}
+function nextQuestion() {
+    if(count<len-1){
+    count++;
+    var q = document.getElementById('ques');
+    var opt1 = document.getElementById('choice0');
+    var opt2 = document.getElementById('choice1');
+    var opt3 = document.getElementById('choice2');
+    q.innerHTML = questions[count].question
+    opt1.innerHTML = questions[count].option1
+    opt2.innerHTML = questions[count].option2
+    opt3.innerHTML = questions[count].option3
+    
+}
+   else{
+       alert("question finish")
+   } 
+}
+function reset(){
+    count = 0;
+    document.getElementById("quesOf").value = "";
+    document.getElementById("ques").innerHTML = "";
+    document.getElementById("choice0").innerHTML = "";
+    document.getElementById("choice1").innerHTML = "";
+    document.getElementById("choice2").innerHTML = "";
+    questions = [];
+
+}
+
+function del(){
+    var quesOf = document.getElementById('quesOf').value;
+
+    firebase.database().ref(quesOf).childadded().remove();
+    alert(quesOf);
+}
+    </script>
+</body>
+</html>
